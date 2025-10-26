@@ -1,13 +1,15 @@
 package cmd
 
 import (
-	"os"
-	"path/filepath"
-	"net/http"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"sort"
+	"strings"
 )
 
 func getESPBase() string {
@@ -46,7 +48,7 @@ func getLatestESPIDFVersion() (string, error) {
 	return release.TagName, nil
 }
 
-func getLatestInstalledVersion() (string, error) {
+func getLatestInstalledESPIDFVersion() (string, error) {
 	versions, err := getInstalledVersions(getESPBase())
 	if err != nil {
 		return "", fmt.Errorf("failed to get installed versions: %w", err)
@@ -59,3 +61,17 @@ func getLatestInstalledVersion() (string, error) {
 	sort.Strings(versions)
 	return versions[len(versions)-1], nil
 }
+
+func getESPIDFEnvironment(idfPath string) ([]string, error) {
+	exportScript := filepath.Join(idfPath, "export.sh")
+
+	cmd := exec.Command("bash", "-c", fmt.Sprintf("source %s > /dev/null 2>&1 && env", exportScript))
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("failed to source export.sh: %w", err)
+	}
+
+	envVars := strings.Split(string(output), "\n")
+	return envVars, nil
+}
+
