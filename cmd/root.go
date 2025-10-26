@@ -6,9 +6,16 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "esp-devkit",
-	Short: "ESP32 development toolkit",
-	Long:  `A unified CLI tool for ESP32 development with dual toolchain support`,
+	Use:   "idfmgr",
+	Short: "Manage ESP-IDF installations, versions, and projects",
+	Long:  `idfmgr simplifies ESP32 development by managing multiple ESP-IDF versions,
+creating projects with templates, and supporting both GCC and Clang toolchains.
+
+Key features:
+  • Install and manage multiple ESP-IDF versions
+  • Create projects with built-in templates (basic, Arduino)
+  • Build with GCC or Clang toolchains
+  • Per-project version management with .espidf-version files`,
 }
 
 func Execute() {

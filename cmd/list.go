@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// GitHub release structure
 type GitHubRelease struct {
 	TagName     string    `json:"tag_name"`
 	Name        string    `json:"name"`

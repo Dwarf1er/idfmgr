@@ -19,11 +19,11 @@ var removeCmd = &cobra.Command{
 	Use:   "remove [version...]",
 	Short: "Remove installed ESP-IDF versions",
 	Long: `Remove one or more installed ESP-IDF versions from the ESP_BASE directory.
-Use --all to remove all installed versions.`,
-	Example: `  esp-devkit remove v5.1.2
-  esp-devkit remove v4.4.6 v5.0.0
-  esp-devkit remove --all
-  esp-devkit remove v5.1.2 --force`,
+Use all to remove all installed versions.`,
+	Example: `  idfmgr remove v5.1.2
+  idfmgr remove v4.4.6 v5.0.0
+  idfmgr remove all
+  idfmgr remove v5.1.2 --force`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := removeVersions(args); err != nil {
 			fmt.Fprintf(os.Stderr, "Error removing versions: %v\n", err)
@@ -33,7 +33,6 @@ Use --all to remove all installed versions.`,
 }
 
 func init() {
-	removeCmd.Flags().BoolVar(&removeAll, "all", false, "Remove all installed versions")
 	removeCmd.Flags().BoolVarP(&force, "force", "f", false, "Skip confirmation prompts")
 	rootCmd.AddCommand(removeCmd)
 }
@@ -41,7 +40,6 @@ func init() {
 func removeVersions(versions []string) error {
 	espBase := getESPBase()
 
-	// Check if ESP_BASE directory exists
 	if _, err := os.Stat(espBase); os.IsNotExist(err) {
 		fmt.Printf("ESP_BASE directory doesn't exist: %s\n", espBase)
 		return nil
@@ -49,17 +47,17 @@ func removeVersions(versions []string) error {
 
 	var toRemove []string
 
-	if removeAll {
+	if versions[0] == "all" {
 		installed, err := getInstalledVersions(espBase)
 		if err != nil {
 			return fmt.Errorf("failed to get installed versions: %w", err)
 		}
-		
+
 		if len(installed) == 0 {
 			fmt.Println("No ESP-IDF versions are installed.")
 			return nil
 		}
-		
+
 		toRemove = installed
 		fmt.Printf("Will remove all %d installed versions:\n", len(toRemove))
 		for _, version := range toRemove {
@@ -69,27 +67,27 @@ func removeVersions(versions []string) error {
 		if len(versions) == 0 {
 			return fmt.Errorf("specify versions to remove or use --all flag")
 		}
-		
+
 		for _, version := range versions {
 			versionPath := filepath.Join(espBase, version)
 			if _, err := os.Stat(versionPath); os.IsNotExist(err) {
 				fmt.Printf("Warning: Version %s is not installed, skipping\n", version)
 				continue
 			}
-			
+
 			if !isValidESPIDFInstall(versionPath) {
 				fmt.Printf("Warning: %s doesn't appear to be a valid ESP-IDF installation, skipping\n", version)
 				continue
 			}
-			
+
 			toRemove = append(toRemove, version)
 		}
-		
+
 		if len(toRemove) == 0 {
 			fmt.Println("No valid versions to remove.")
 			return nil
 		}
-		
+
 		fmt.Printf("Will remove %d version(s):\n", len(toRemove))
 		for _, version := range toRemove {
 			fmt.Printf("  - %s\n", version)
@@ -110,7 +108,7 @@ func removeVersions(versions []string) error {
 		if err != nil {
 			return fmt.Errorf("failed to read input: %w", err)
 		}
-		
+
 		response = strings.TrimSpace(strings.ToLower(response))
 		if response != "y" && response != "yes" {
 			fmt.Println("Operation cancelled.")
@@ -123,7 +121,7 @@ func removeVersions(versions []string) error {
 
 	for _, version := range toRemove {
 		versionPath := filepath.Join(espBase, version)
-		
+
 		if err := os.RemoveAll(versionPath); err != nil {
 			fmt.Printf("❌ Failed to remove %s: %v\n", version, err)
 			failed = append(failed, version)
@@ -183,7 +181,7 @@ func calculateTotalSize(espBase string, versions []string) (int64, error) {
 
 func getDirSize(path string) (int64, error) {
 	var size int64
-	
+
 	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -193,7 +191,7 @@ func getDirSize(path string) (int64, error) {
 		}
 		return nil
 	})
-	
+
 	return size, err
 }
 

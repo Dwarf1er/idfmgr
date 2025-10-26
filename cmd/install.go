@@ -19,7 +19,7 @@ var (
 var installCmd = &cobra.Command{
 	Use:   "install <version>",
 	Short: "Install a specific ESP-IDF version",
-	Long:  `Download and install a specific ESP-IDF version to the ESP_BASE directory`,
+	Long:  `Download and install a specific ESP-IDF version to the ESP_BASE directory. Use 'latest' to install the lastest published version.`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		version := args[0]
@@ -39,9 +39,17 @@ func init() {
 func installVersion(version string) error {
 	fmt.Printf("Installing ESP-IDF version %s...\n", version)
 
+	if version == "latest" {
+		var err error
+		version, err = getLatestESPIDFVersion()
+		if err != nil {
+			return fmt.Errorf("failed to get latest version: %w", err)
+		}
+	}
+
 	espBase := getESPBase()
 	installPath := filepath.Join(espBase, version)
-	
+
 	if _, err := os.Stat(installPath); err == nil {
 		fmt.Printf("Version %s is already installed at %s\n", version, installPath)
 		return nil
@@ -53,7 +61,7 @@ func installVersion(version string) error {
 		}
 	}
 
-	if err := os.MkdirAll(espBase, 0755); err != nil {
+	if err := os.MkdirAll(espBase, 0o755); err != nil {
 		return fmt.Errorf("failed to create ESP_BASE directory: %w", err)
 	}
 
@@ -78,7 +86,7 @@ func installVersion(version string) error {
 
 func checkPrerequisites() error {
 	fmt.Println("Checking prerequisites...")
-	
+
 	prerequisites := []string{
 		"git", "wget", "python3", "cmake", "ninja",
 	}
@@ -93,7 +101,7 @@ func checkPrerequisites() error {
 	if len(missing) > 0 {
 		fmt.Printf("❌ Missing prerequisites: %s\n", strings.Join(missing, ", "))
 		fmt.Println("\nPlease install them using your package manager:")
-		
+
 		switch runtime.GOOS {
 		case "linux":
 			if commandExists("apt-get") {
@@ -115,7 +123,7 @@ func checkPrerequisites() error {
 		case "windows":
 			fmt.Println("  Install using chocolatey, winget, or download manually")
 		}
-		
+
 		return fmt.Errorf("missing prerequisites")
 	}
 
@@ -130,31 +138,31 @@ func commandExists(cmd string) bool {
 
 func cloneESPIDF(version, installPath string) error {
 	fmt.Printf("Cloning ESP-IDF %s...\n", version)
-	
-	cmd := exec.Command("git", "clone", 
+
+	cmd := exec.Command("git", "clone",
 		"-b", version,
-		"--recursive", 
+		"--recursive",
 		"--depth", "1",
-		"https://github.com/espressif/esp-idf.git", 
+		"https://github.com/espressif/esp-idf.git",
 		installPath)
-	
+
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	
+
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("git clone failed: %w", err)
 	}
-	
+
 	fmt.Println("✅ ESP-IDF cloned successfully")
 	return nil
 }
 
 func runInstallScript(installPath string) error {
 	fmt.Println("Running ESP-IDF install script...")
-	
+
 	var installScript string
 	var args []string
-	
+
 	if runtime.GOOS == "windows" {
 		installScript = filepath.Join(installPath, "install.bat")
 		args = []string{"esp32"}
@@ -162,46 +170,47 @@ func runInstallScript(installPath string) error {
 		installScript = filepath.Join(installPath, "install.sh")
 		args = []string{"esp32"}
 	}
-	
+
 	if _, err := os.Stat(installScript); os.IsNotExist(err) {
 		return fmt.Errorf("install script not found: %s", installScript)
 	}
-	
+
 	cmd := exec.Command(installScript, args...)
 	cmd.Dir = installPath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	
+
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("install script failed: %w", err)
 	}
-	
+
 	fmt.Println("✅ ESP-IDF install script completed")
 	return nil
 }
 
 func installESPClang(installPath string) error {
 	fmt.Println("Installing esp-clang...")
-	
+
 	cmd := exec.Command("pip3", "install", "-U", "pyclang")
 	if err := cmd.Run(); err != nil {
 		fmt.Println("Warning: Failed to install pyclang via pip3")
 	}
-	
+
 	idfToolsScript := filepath.Join(installPath, "tools", "idf_tools.py")
 	if _, err := os.Stat(idfToolsScript); os.IsNotExist(err) {
 		return fmt.Errorf("idf_tools.py not found at %s", idfToolsScript)
 	}
-	
+
 	cmd = exec.Command("python3", idfToolsScript, "install", "esp-clang")
 	cmd.Dir = installPath
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	
+
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("esp-clang installation failed: %w", err)
 	}
-	
+
 	fmt.Println("✅ esp-clang installed successfully")
 	return nil
 }
+
