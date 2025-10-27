@@ -176,11 +176,14 @@ func createClangdConfig(projectPath string) error {
 }
 
 func createSdkconfigDefaults(projectPath string) error {
-	sdkconfigContent := `CONFIG_AUTOSTART_ARDUINO=n
+	sdkconfigContent := fmt.Sprintf(`# Target configuration
+CONFIG_IDF_TARGET="%s"
+
+# Other defaults
+CONFIG_AUTOSTART_ARDUINO=n
 CONFIG_FREERTOS_HZ=1000
-CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
-CONFIG_ESPTOOLPY_FLASHSIZE="4MB"
-`
+`, target)
+
 	sdkconfigFile := filepath.Join(projectPath, "sdkconfig.defaults")
 	return os.WriteFile(sdkconfigFile, []byte(sdkconfigContent), 0o644)
 }
