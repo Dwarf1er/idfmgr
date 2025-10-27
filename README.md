@@ -3,7 +3,7 @@
 # idfmgr
 #### Simplifying ESP32 project management
 
-<img alt="idfmgr logo" src="https://raw.githubusercontent.com/Dwarf1er/idfmgr/master/assets/idfmgr-logo.png" />
+<img alt="idfmgr logo" src="https://raw.githubusercontent.com/Dwarf1er/idfmgr/master/assets/idfmgr-logo.png" height="250" />
 
 ![License](https://img.shields.io/github/license/Dwarf1er/idfmgr?style=for-the-badge)
 ![Issues](https://img.shields.io/github/issues/Dwarf1er/idfmgr?style=for-the-badge)
