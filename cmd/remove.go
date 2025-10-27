@@ -38,6 +38,10 @@ func init() {
 }
 
 func removeVersions(versions []string) error {
+	if len(versions) == 0 {
+        return fmt.Errorf("specify versions to remove or 'all'")
+    }
+
 	espBase := getESPBase()
 
 	if _, err := os.Stat(espBase); os.IsNotExist(err) {

@@ -127,7 +127,7 @@ func createESPIDFVersionFile(projectPath, version string) error {
 
 func setTarget(projectPath, idfPath string, env []string) error {
 	idfPyPath := filepath.Join(idfPath, "tools", "idf.py")
-	cmd := exec.Command("python3", idfPyPath, "set-target", "esp32")
+	cmd := exec.Command("python3", idfPyPath, "set-target", target)
 	cmd.Dir = projectPath
 	cmd.Env = env
 	cmd.Stdout = os.Stdout
