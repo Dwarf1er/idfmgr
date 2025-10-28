@@ -1,4 +1,13 @@
-# 0.1.0 (2025-10-28)
+# [0.2.0](https://github.com/Dwarf1er/idfmgr/compare/v0.1.0...v0.2.0) (2025-10-28)
+
+
+### Features
+
+* added exec and info commands ([28af83e](https://github.com/Dwarf1er/idfmgr/commit/28af83e57015ff6103ca451c95da7e9777b07a54))
+
+
+
+# [0.1.0](https://github.com/Dwarf1er/idfmgr/compare/64c5399d61d182b0fa37e52be9b73563d08b122b...v0.1.0) (2025-10-28)
 
 
 ### Features
