@@ -1,0 +1,89 @@
+name: Build and Release
+on:
+    push:
+        branches:
+            - master
+jobs:
+    changelog:
+        runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.changelog.outputs.version }}
+            tag: ${{ steps.changelog.outputs.tag }}
+            changelog_text: ${{ steps.changelog.outputs.changelog }}
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+            - name: Generate Changelog
+              id: changelog
+              uses: TriPSs/conventional-changelog-action@v6
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+    build_and_release:
+        runs-on: ubuntu-latest
+        needs: changelog
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+            - name: Setup Go
+              uses: actions/setup-go@v5
+              with:
+                  go-version: "1.22"
+            - name: Build for linux-x64
+              env:
+                  CGO_ENABLED: 0
+                  GOOS: linux
+                  GOARCH: amd64
+              run: |
+                  go build -ldflags="-s -w -X main.version=${{ needs.changelog.outputs.version }}" -o idfmgr .
+                  mkdir -p artifacts/linux-x64
+                  cp idfmgr artifacts/linux-x64/idfmgr-linux-x64-${{ needs.changelog.outputs.tag }}
+            - name: Build for linux-arm64
+              env:
+                  CGO_ENABLED: 0
+                  GOOS: linux
+                  GOARCH: arm64
+              run: |
+                  go build -ldflags="-s -w -X main.version=${{ needs.changelog.outputs.version }}" -o idfmgr .
+                  mkdir -p artifacts/linux-arm64
+                  cp idfmgr artifacts/linux-arm64/idfmgr-linux-arm64-${{ needs.changelog.outputs.tag }}
+            - name: Build for win-x64
+              env:
+                  CGO_ENABLED: 0
+                  GOOS: windows
+                  GOARCH: amd64
+              run: |
+                  go build -ldflags="-s -w -X main.version=${{ needs.changelog.outputs.version }}" -o idfmgr.exe .
+                  mkdir -p artifacts/win-x64
+                  cp idfmgr.exe artifacts/win-x64/idfmgr-win-x64-${{ needs.changelog.outputs.tag }}.exe
+            - name: Build for osx-x64
+              env:
+                  CGO_ENABLED: 0
+                  GOOS: darwin
+                  GOARCH: amd64
+              run: |
+                  go build -ldflags="-s -w -X main.version=${{ needs.changelog.outputs.version }}" -o idfmgr .
+                  mkdir -p artifacts/osx-x64
+                  cp idfmgr artifacts/osx-x64/idfmgr-osx-x64-${{ needs.changelog.outputs.tag }}
+            - name: Build for osx-arm64
+              env:
+                  CGO_ENABLED: 0
+                  GOOS: darwin
+                  GOARCH: arm64
+              run: |
+                  go build -ldflags="-s -w -X main.version=${{ needs.changelog.outputs.version }}" -o idfmgr .
+                  mkdir -p artifacts/osx-arm64
+                  cp idfmgr artifacts/osx-arm64/idfmgr-osx-arm64-${{ needs.changelog.outputs.tag }}
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  name: "Release ${{ needs.changelog.outputs.tag }}"
+                  body: ${{ needs.changelog.outputs.changelog_text }}
+                  tag_name: ${{ needs.changelog.outputs.tag }}
+                  files: |
+                      artifacts/linux-x64/*
+                      artifacts/linux-arm64/*
+                      artifacts/win-x64/*
+                      artifacts/osx-x64/*
+                      artifacts/osx-arm64/*
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
