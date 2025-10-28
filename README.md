@@ -15,7 +15,7 @@
 
 ## Project Description
 
-**idfmgr** is a command-line tool that simplifies ESP32 development by managing multiple ESP-IDF versions, creating projects with templates, and supporting both GCC and Clang toolchains.
+**idfmgr** is a command-line wrapper around Espressif's idf.py tool that simplifies ESP32 development workflows. It handles the complexity of managing multiple ESP-IDF versions, provides project templates, and makes it easy to switch between GCC and Clang toolchains—all while leveraging the power of the official idf.py tool underneath.
 
 ### Key Features
 
