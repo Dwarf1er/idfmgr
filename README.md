@@ -62,12 +62,49 @@
 
 ## Installation
 
-### From Source
+### Using go install (Recommended)
+
+If you have Go installed (1.21+), this is the easiest method:
+```bash
+go install github.com/Dwarf1er/idfmgr@latest
+```
+
+Make sure `$GOPATH/bin` (typically `~/go/bin`) is in your `PATH`.
+
+### Download Pre-built Binaries
+
+Download the latest release for your platform from the [releases page](https://github.com/Dwarf1er/idfmgr/releases), replace version as needed in the commands:
+
+**Linux:**
+```bash
+wget https://github.com/Dwarf1er/idfmgr/releases/download/vX.X.X/idfmgr-linux-x64-vX.X.X
+chmod +x idfmgr-linux-x64-vX.X.X
+sudo mv idfmgr-linux-x64-vX.X.X /usr/local/bin/idfmgr
+```
+
+**macOS:**
+```bash
+# Intel Mac
+wget https://github.com/Dwarf1er/idfmgr/releases/download/vX.X.X/idfmgr-osx-x64-vX.X.X
+chmod +x idfmgr-osx-x64-vX.X.X
+sudo mv idfmgr-osx-x64-vX.X.X /usr/local/bin/idfmgr
+
+# Apple Silicon Mac
+wget https://github.com/Dwarf1er/idfmgr/releases/download/vX.X.X/idfmgr-osx-arm64-vX.X.X
+chmod +x idfmgr-osx-arm64-vX.X.X
+sudo mv idfmgr-osx-arm64-vX.X.X /usr/local/bin/idfmgr
+```
+
+**Windows:**
+Download the `.exe` file and add it to your PATH.
+
+### Build from Source
 ```bash
 git clone https://github.com/Dwarf1er/idfmgr.git
 cd idfmgr
 go build -o idfmgr
 sudo mv idfmgr /usr/local/bin/
+# or move to a directory in your PATH on Windows
 ```
 
 ### Prerequisites
@@ -171,6 +208,20 @@ idfmgr create my-project --arduino --target esp32s3 --version v5.1.2
 - `.gitignore` - Ignores build artifacts and generated files
 - Git repository with initial commit
 
+#### `info`
+
+Show project and environment information
+```bash
+idfmgr info
+```
+
+**Output includes:**
+- Current ESP-IDF version
+- Installation path
+- Build status (GCC/Clang)
+- Manual activation instructions
+- Usage examples
+
 ### Building and Flashing
 
 #### `build`
@@ -203,6 +254,31 @@ idfmgr flash -p /dev/ttyUSB0
 # Combined options
 idfmgr flash --clang --monitor --port /dev/ttyUSB1
 ```
+
+#### `exec [idf.py args...]`
+
+Execute any idf.py command with proper environment setup
+```bash
+# Open menuconfig
+idfmgr exec menuconfig
+
+# Monitor serial output
+idfmgr exec monitor
+
+# Monitor with specific port
+idfmgr exec -p /dev/ttyUSB0 monitor
+
+# Erase flash
+idfmgr exec erase-flash
+
+# Full clean
+idfmgr exec fullclean
+
+# App-only flash (faster)
+idfmgr exec app-flash
+```
+
+This command is perfect for accessing idf.py features not wrapped by idfmgr, while still benefiting from automatic environment management.
 
 ## Templates
 
@@ -257,20 +333,30 @@ idfmgr flash          # Flash GCC build
 idfmgr flash --clang  # Flash Clang build
 ```
 
-### Global Verbose Mode
-
-Add `-v` or `--verbose` before any command:
-```bash
-idfmgr -v build
-idfmgr --verbose flash --monitor
-```
-
 ### Quick Arduino Development
 ```bash
 idfmgr create blink --arduino --target esp32s3
 cd blink
 idfmgr build --clang
 idfmgr flash --clang --monitor
+```
+
+### Using idf.py Directly
+
+When you need features not wrapped by idfmgr, use `exec`:
+```bash
+# Instead of manually sourcing export.sh and running idf.py
+idfmgr exec menuconfig
+
+# Instead of:
+# . ~/esp/esp-idf-v5.1.2/export.sh
+# idf.py menuconfig
+```
+
+Or check the manual activation path:
+```bash
+idfmgr info
+# Shows: . ~/esp/esp-idf-v5.1.2/export.sh
 ```
 
 ## ESP IDF Project Structure
