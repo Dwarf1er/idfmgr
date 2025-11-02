@@ -79,7 +79,7 @@ func createProject(projectName string) error {
 		}
 	}
 
-	fmt.Printf("✅ Project '%s' created successfully!\n", projectName)
+	fmt.Printf("Project '%s' created successfully!\n", projectName)
 	return nil
 }
 
