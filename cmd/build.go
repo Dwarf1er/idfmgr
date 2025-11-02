@@ -88,6 +88,6 @@ func buildProject() error {
 		return fmt.Errorf("build failed: %w", err)
 	}
 
-	fmt.Printf("✅ Build successful! Output in %s/\n", buildDir)
+	fmt.Printf("Build successful! Output in %s/\n", buildDir)
 	return nil
 }
