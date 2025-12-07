@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/Dwarf1er/idfmgr/compare/v0.3.0...v0.4.0) (2025-12-07)
+
+
+### Features
+
+* added new component template and activate command ([f8bce21](https://github.com/Dwarf1er/idfmgr/commit/f8bce2194e15ad19e9d742d947b70d1d045edc0a))
+
+
+
 # [0.3.0](https://github.com/Dwarf1er/idfmgr/compare/v0.2.0...v0.3.0) (2025-11-02)
 
 
