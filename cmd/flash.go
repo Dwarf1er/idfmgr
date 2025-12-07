@@ -103,7 +103,7 @@ func flashProject() error {
 	}
 
 	if !openMonitor {
-		fmt.Println("✅ Flash successful!")
+		fmt.Println("Flash successful!")
 		fmt.Println("Tip: Use 'idfmgr flash --monitor' to open serial monitor after flashing")
 	}
 

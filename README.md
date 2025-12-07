@@ -20,7 +20,7 @@
 ### Key Features
 
 - **Version Management**: Install, list, and remove multiple ESP-IDF versions
-- **Project Templates**: Create projects with base or Arduino templates
+- **Project Templates**: Create projects with base, Arduino or IDF component templates
 - **Dual Toolchain Support**: Build with GCC or Clang (separate build directories)
 - **Per-Project Versioning**: Track ESP-IDF version with `.espidf-version` files
 - **Integrated Workflow**: Build and flash with automatic environment setup
@@ -46,6 +46,7 @@
 			- [`remove [version...]`](#remove-version)
 		- [Project Management](#project-management)
 			- [`create <project-name>`](#create-project-name)
+			- [`activate`](#activate)
 			- [`info`](#info)
 		- [Building and Flashing](#building-and-flashing)
 			- [`build`](#build)
@@ -54,6 +55,7 @@
 	- [Templates](#templates)
 		- [Base Template](#base-template)
 		- [Arduino Template (`--arduino`)](#arduino-template---arduino)
+		- [IDF Component Template (`--component`)](#idf-component-template---component)
 	- [Configuration](#configuration)
 		- [Environment Variables](#environment-variables)
 		- [Per-Project Configuration](#per-project-configuration)
@@ -212,6 +214,27 @@ idfmgr create my-project --arduino --target esp32s3 --version v5.1.2
 - `.gitignore` - Ignores build artifacts and generated files
 - Git repository with initial commit
 
+#### `activate`
+
+Set up the ESP-IDF environment for the current project automatically. This reads the `.espidf-version` file and outputs shell commands to configure environment variables.
+
+Linux/MacOS
+```bash
+# Activate environment in the current shell
+eval "$(idfmgr activate)"
+```
+
+Windows (PowerShell)
+```powershell
+# Launch a PowerShell with ESP-IDF environment configured
+idfmgr activate
+```
+
+**What it does:**
+- Sets `IDF_PATH`, `PATH`, `IDF_PYTHON_ENV_PATH`, and other ESP-IDF variables (including `esp-clang` for LSP integration in your IDE)
+- Works for the project’s specific ESP-IDF version
+- Enables subsequent `idf.py` or `idfmgr exec` commands without manual export
+
 #### `info`
 
 Show project and environment information
@@ -301,6 +324,14 @@ All base template features plus:
 - Pre-configured CMake for Arduino support
 - `main.cpp` with Arduino-style `setup()` and `loop()`
 - Serial communication ready
+
+### IDF Component Template (`--component`)
+
+Minimal ESP-IDF registry component with:
+- Standard component folder structure (`include/` and `src/`)
+- `.gitignore` to ignore build artifacts and temporary files
+- Git repository initialized for version control
+- Ready to be added to any ESP-IDF project or published to the ESP-IDF registry
 
 ---
 

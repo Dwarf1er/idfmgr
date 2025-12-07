@@ -80,7 +80,7 @@ func installVersion(version string) error {
 		}
 	}
 
-	fmt.Printf("✅ ESP-IDF version %s installed successfully at %s\n", version, installPath)
+	fmt.Printf("ESP-IDF version %s installed successfully at %s\n", version, installPath)
 	return nil
 }
 
@@ -99,7 +99,7 @@ func checkPrerequisites() error {
 	}
 
 	if len(missing) > 0 {
-		fmt.Printf("❌ Missing prerequisites: %s\n", strings.Join(missing, ", "))
+		fmt.Printf("Missing prerequisites: %s\n", strings.Join(missing, ", "))
 		fmt.Println("\nPlease install them using your package manager:")
 
 		switch runtime.GOOS {
@@ -127,7 +127,7 @@ func checkPrerequisites() error {
 		return fmt.Errorf("missing prerequisites")
 	}
 
-	fmt.Println("✅ All prerequisites are installed")
+	fmt.Println("All prerequisites are installed")
 	return nil
 }
 
@@ -184,7 +184,7 @@ func runInstallScript(installPath string) error {
 		return fmt.Errorf("install script failed: %w", err)
 	}
 
-	fmt.Println("✅ ESP-IDF install script completed")
+	fmt.Println("ESP-IDF install script completed")
 	return nil
 }
 
@@ -210,7 +210,7 @@ func installESPClang(installPath string) error {
 		return fmt.Errorf("esp-clang installation failed: %w", err)
 	}
 
-	fmt.Println("✅ esp-clang installed successfully")
+	fmt.Println("esp-clang installed successfully")
 	return nil
 }
 

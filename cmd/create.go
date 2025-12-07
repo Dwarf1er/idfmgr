@@ -12,6 +12,7 @@ import (
 
 var (
 	arduino    bool
+	component bool
 	idfVersion string
 	target     string
 )
@@ -36,12 +37,17 @@ var createCmd = &cobra.Command{
 
 func init() {
 	createCmd.Flags().BoolVar(&arduino, "arduino", false, "Create Arduino-based project")
+	createCmd.Flags().BoolVar(&component, "component", false, "Create ESP-IDF registry component")
 	createCmd.Flags().StringVar(&idfVersion, "version", "", "ESP-IDF version to use (default: latest installed)")
 	createCmd.Flags().StringVarP(&target, "target", "t", "esp32", "Target chip (default: esp32)")
 	rootCmd.AddCommand(createCmd)
 }
 
 func createProject(projectName string) error {
+	if component {
+        return createComponent(projectName)
+    }
+
 	version, _ := getLatestInstalledESPIDFVersion()
 	if idfVersion != "" {
 		if _, err := os.Stat(filepath.Join(getESPBase(), idfVersion)); err == nil {
@@ -79,7 +85,7 @@ func createProject(projectName string) error {
 		}
 	}
 
-	fmt.Printf("✅ Project '%s' created successfully!\n", projectName)
+	fmt.Printf("Project '%s' created successfully!\n", projectName)
 	return nil
 }
 
@@ -116,6 +122,67 @@ func applyCommonModifications(projectPath, version, idfPath string, env []string
 		return fmt.Errorf("failed to initialize git: %w", err)
 	}
 
+	return nil
+}
+
+func applyComponentModifications(componentPath, version string) error {
+	if err := createESPIDFVersionFile(componentPath, version); err != nil {
+		return fmt.Errorf("failed to create .espidf-version: %w", err)
+	}
+
+	if err := createGitignore(componentPath); err != nil {
+		return fmt.Errorf("failed to create .gitignore: %w", err)
+	}
+
+	if err := createClangdConfig(componentPath); err != nil {
+		return fmt.Errorf("failed to create .clangd: %w", err)
+	}
+
+	if err := initGitRepo(componentPath); err != nil {
+		return fmt.Errorf("failed to initialize git: %w", err)
+	}
+
+	return nil
+}
+
+func createComponent(projectName string) error {
+	root := filepath.Join(".", projectName)
+
+	dirs := []string{
+		filepath.Join(root, "include"),
+		filepath.Join(root, "src"),
+	}
+
+	for _, d := range dirs {
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			return fmt.Errorf("failed to create directory %s: %w", d, err)
+		}
+	}
+
+	files := map[string]string{
+		filepath.Join(root, "CMakeLists.txt"): `idf_component_register(SRCS "src/` + projectName + `.c" INCLUDE_DIRS "include")`,
+		filepath.Join(root, "Kconfig"):       "# Kconfig for " + projectName,
+		filepath.Join(root, "README.md"):     "# " + projectName,
+		filepath.Join(root, "idf_component.yml"): `name: ` + projectName + `
+version: 0.1.0
+dependencies: []`,
+		filepath.Join(root, "include", projectName + ".h"): `#pragma once
+// Header for ` + projectName,
+		filepath.Join(root, "src", projectName+".c"): `#include "` + projectName + `.h"
+// Source for ` + projectName,
+	}
+
+	for path, content := range files {
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			return fmt.Errorf("failed to create file %s: %w", path, err)
+		}
+	}
+
+	if err := applyComponentModifications(root, idfVersion); err != nil {
+		return err
+	}
+
+	fmt.Printf("Component '%s' created successfully!\n", projectName)
 	return nil
 }
 
@@ -360,4 +427,3 @@ extern "C" void app_main()
 	newContent := strings.ReplaceAll(string(content), "main.c", "main.cpp")
 	return os.WriteFile(mainCMakeFile, []byte(newContent), 0o644)
 }
-

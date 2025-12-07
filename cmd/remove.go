@@ -127,20 +127,20 @@ func removeVersions(versions []string) error {
 		versionPath := filepath.Join(espBase, version)
 
 		if err := os.RemoveAll(versionPath); err != nil {
-			fmt.Printf("❌ Failed to remove %s: %v\n", version, err)
+			fmt.Printf("Failed to remove %s: %v\n", version, err)
 			failed = append(failed, version)
 		} else {
 			removed = append(removed, version)
 		}
 	}
 
-	fmt.Printf("\n✅ Successfully removed %d version(s):\n", len(removed))
+	fmt.Printf("\nSuccessfully removed %d version(s):\n", len(removed))
 	for _, version := range removed {
 		fmt.Printf("  - %s\n", version)
 	}
 
 	if len(failed) > 0 {
-		fmt.Printf("\n❌ Failed to remove %d version(s):\n", len(failed))
+		fmt.Printf("\nFailed to remove %d version(s):\n", len(failed))
 		for _, version := range failed {
 			fmt.Printf("  - %s\n", version)
 		}
