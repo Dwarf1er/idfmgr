@@ -153,7 +153,7 @@ func cloneESPIDF(version, installPath string) error {
 		return fmt.Errorf("git clone failed: %w", err)
 	}
 
-	fmt.Println("✅ ESP-IDF cloned successfully")
+	fmt.Println("ESP-IDF cloned successfully")
 	return nil
 }
 
